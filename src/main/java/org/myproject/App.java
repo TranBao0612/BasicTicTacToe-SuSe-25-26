@@ -2,31 +2,30 @@ package org.myproject;
 
 import org.myproject.game.Tictactoe;
 
-/**
- * Hello world!
- */
+
 public class App {
     public static void main(String[] args) {
-        int start_player;
+        int turn_of_user;
+        String invalid_arg = "Please, input a valid option [1-2]";
 
-        
         if(args.length == 1) {
             try{
-                start_player = Integer.parseInt(args[0]);
+                turn_of_user = Integer.parseInt(args[0]);
+                if(turn_of_user != 1 && turn_of_user != 2) {
+                    System.out.println(invalid_arg);
+                    return;
+                }
             } catch (NumberFormatException e) {
-                start_player = -1; // To flag invalid input, will be handled in Tictactoe constructor
+                System.out.println(invalid_arg);
+                return;
             }
-        } else if(args.length == 0) {
-            System.out.println("No argument! The default mode with user goes 1st is running.");
-            start_player = 1;
         } else {
-            System.out.println("Too many arguments! Please only specify the turn of user (1 or 2).");
+            System.out.println(invalid_arg);
             return;
         }
 
 
-        Tictactoe tic_tac_toe_game = new Tictactoe(start_player);
-        tic_tac_toe_game.game_start();
-        
+        Tictactoe tic_tac_toe_game = new Tictactoe(turn_of_user);
+        tic_tac_toe_game.run_game_loop();
     }
 }

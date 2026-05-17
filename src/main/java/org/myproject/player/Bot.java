@@ -1,27 +1,19 @@
 package org.myproject.player;
 
-import org.myproject.board.Board;
+import java.io.PrintStream;
+
+import org.myproject.board.SquareBoard;
 
 
 /**
  * Class represent a Bot (computer player) with a player_id and method to make decision
  */
 public class Bot extends Player {
-    public Bot() {
-        super(2);
+    public Bot(int id, PrintStream printStream) {
+        super(id, printStream);
     }
-
-
-    /**
-     * Bot (computer) move with basic strategy: choose 1st available cell
-     * @param board
-     */
-    public void move(Board board) {
-        try {
-            board.player_choose(player_id, make_decision(board));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public Bot(int id) {
+        this(id, System.out);
     }
 
 
@@ -30,9 +22,9 @@ public class Bot extends Player {
      * @param board
      * @return cell id of the cell on tic-tac-toe board
      */
-    protected int make_decision(Board board) {
-        int cell_id = board.available_cells().get(0);
-        System.out.printf("Player %d choose %d.\n", player_id, cell_id);
-        return cell_id;
+    public int make_decision(SquareBoard board) {
+        int decision = board.get_empty_cells().get(0);
+        print_stream.println(decision_console_string + decision);
+        return decision;
     }
 }
