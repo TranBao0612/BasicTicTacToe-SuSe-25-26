@@ -1,31 +1,44 @@
 package org.myproject;
 
+import org.myproject.constant.Message;
 import org.myproject.game.Tictactoe;
+import org.myproject.io.*;
 
 
 public class App {
-    public static void main(String[] args) {
-        int turn_of_user;
-        String invalid_arg = "Please, input a valid option [1-2]";
-
-        if(args.length == 1) {
+    public static boolean validateArgs(String[] args, IOService ioService) {
+            if(args.length == 1) {
             try{
-                turn_of_user = Integer.parseInt(args[0]);
+                int turn_of_user = Integer.parseInt(args[0]);
                 if(turn_of_user != 1 && turn_of_user != 2) {
-                    System.out.println(invalid_arg);
-                    return;
+                    ioService.println(Message.INVALID_ARGS);
+                    return false;
                 }
+                return true;
             } catch (NumberFormatException e) {
-                System.out.println(invalid_arg);
-                return;
+                ioService.println(Message.INVALID_ARGS);
+                return false;
             }
         } else {
-            System.out.println(invalid_arg);
+            ioService.println(Message.INVALID_ARGS);
+            return false;
+        }
+    } 
+
+
+
+    public static void main(String[] args) {
+        int turn_of_user;
+        ConsoleIO ioService = new ConsoleIO();
+
+        if (!validateArgs(args, ioService)) {
             return;
+        } else {
+            turn_of_user = Integer.parseInt(args[0]);
         }
 
 
-        Tictactoe tic_tac_toe_game = new Tictactoe(turn_of_user);
-        tic_tac_toe_game.run_game_loop();
+        Tictactoe tic_tac_toe_game = new Tictactoe(turn_of_user, ioService);
+        tic_tac_toe_game.startGame();
     }
 }

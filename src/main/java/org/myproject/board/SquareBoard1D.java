@@ -1,77 +1,103 @@
 package org.myproject.board;
 
 import java.util.Arrays;
-import java.io.PrintStream;
+
 
 /**
- * This class represents a square board for a game. <br>
- *    Cell id starts from 1 and increase row-wise from top-left to bottom-right. <br>
- *    For setter and getter methods by row and column, row and column indices also start from 1. <br>
- *    The value of a cell can be set to represent the player occupying it, or a special value to represent an empty cell. <br>
- * The actual implementation involving a 1D array is left to this class.   
+ * This class represents a square board for a game with cells represented in a 1D array.
+ * Cells on the board can be empty or occupied by a player.
+ * Cells id, row and column indices are 1-based.
  */
 public class SquareBoard1D extends SquareBoard {
-    private int[] cells;
+    /**
+     * 1D array to represent cells of the board.
+     */
+    private int[] board;
 
-    // ---------Constructor---------
     /**
-     * Constructor to initialize an empty board with a specified size and empty cell value.
-     * @param size the size of the board (number of rows and columns)
-     * @param empty_cell_value the value that represents an empty cell
-     * @param print_stream PrintStream to print messages to the console
-     */
-    public SquareBoard1D(int size, int empty_cell_value, PrintStream print_stream) {
-        super(size, empty_cell_value, print_stream);
-        this.cells = new int[size*size];
-        Arrays.fill(cells, EMPTY_CELL_VALUE);
-    }
-    /**
-     * Constructor to initialize an empty board with a specified size and empty cell value, and default PrintStream of System.out.
-     * @param size the size of the board (number of rows and columns)
-     * @param empty_cell_value the value that represents an empty cell
-     */
-    public SquareBoard1D(int size, int empty_cell_value) {
-        this(size, empty_cell_value, System.out);
-    }
-    /**
-     * Constructor to initialize an empty board with a specified size and default empty cell value of 0.
-     * @param size the size of the board (number of rows and columns)
+     * Initialize the board with the given size.
+     * @param size the size of the square board (number of rows/columns).
      */
     public SquareBoard1D(int size) {
-        this(size, 0, System.out);
-    }
-
-
-
-
-    // ---------Override methods---------
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int get_value(int cell_id) {
-        return cells[cell_id-1];
-    }
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int get_value(int row, int col) {
-        return cells[(row-1)*size + (col-1)];
+        super(size);
+        this.board = new int[total_cells];
+        Arrays.fill(board, empty_cell_value);
     }
 
     /**
-     * {@inheritDoc}
+     * Get the value of the cell with the given id.
+     * @param cell_id the id of the cell to get the value of.
+     * @return the value of the cell with the given id.
+     * @throws IllegalArgumentException if the cell id is invalid.
      */
     @Override
-    public void set_value(int cell_id, int player_id) {
-        cells[cell_id-1] = player_id;
+    public int getCellValue(int cell_id) {
+        if (!isValidCell(cell_id)) {
+            throw new IllegalArgumentException("Invalid cell id: " + cell_id);
+        }
+        return board[getIndex(cell_id)];
     }
     /**
-     * {@inheritDoc}
+     * Set the value of the cell with the given row and column.
+     * @param row the row of the cell to set the value of.
+     * @param col the column of the cell to set the value of.
+     * @param value the value to set the cell to.
+     * @throws IllegalArgumentException if the cell position is invalid.
      */
     @Override
-    public void set_value(int row, int col, int player_id) {
-        cells[(row-1)*size + (col-1)] = player_id;
+    public int getCellValue(int row, int col) {
+        if (!isValidCell(row, col)) {
+            throw new IllegalArgumentException("Invalid cell position: (" + row + ", " + col + ")");
+        }
+        return board[getIndex(row, col)];
     }
+
+
+    /**
+     * Set the value of the cell with the given id.
+     * @param cell_id the id of the cell to set the value of.
+     * @param value the value to set the cell to.
+     * @throws IllegalArgumentException if the cell id is invalid.
+     */
+    @Override
+    public void setCellValue(int cell_id, int value) {
+        if (!isValidCell(cell_id)) {
+            throw new IllegalArgumentException("Invalid cell id: " + cell_id);
+        }
+        board[getIndex(cell_id)] = value;
+    }
+    /**
+     * Set the value of the cell with the given row and column.
+     * @param row the row of the cell to set the value of.
+     * @param col the column of the cell to set the value of.
+     * @param value the value to set the cell to.
+     * @throws IllegalArgumentException if the cell position is invalid.
+     */
+    @Override
+    public void setCellValue(int row, int col, int value) {
+        if (!isValidCell(row, col)) {
+            throw new IllegalArgumentException("Invalid cell position: (" + row + ", " + col + ")");
+        }
+        board[getIndex(row, col)] = value;
+    }
+
+
+    /**
+     * Get the index in the 1D array for the given cell id.
+     * @param cell_id the id of the cell to get the index for.
+     * @return the index in the 1D array for the given cell id.
+     */
+    private int getIndex(int cell_id) {
+        return cell_id - 1;
+    }
+    /**
+     * Get the index in the 1D array for the given row and column.
+     * @param row the row of the cell to get the index for.
+     * @param col the column of the cell to get the index for.
+     * @return the index in the 1D array for the given row and column.
+     */
+    private int getIndex(int row, int col) {
+        return (row - 1) * size + (col - 1);
+    }
+    
 }

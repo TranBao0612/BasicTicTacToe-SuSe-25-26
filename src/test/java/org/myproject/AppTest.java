@@ -1,16 +1,17 @@
 package org.myproject;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.myproject.io.TestIO;
+import org.myproject.constant.Message;
 
-import java.io.BufferedReader;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,25 +21,33 @@ import org.junit.jupiter.api.Test;
  * Unit test for simple App.
  */
 public class AppTest {
+    // Save original streams
     private final PrintStream originalOut = System.out;
-    private PipedOutputStream outputStream;
+    private final java.io.InputStream originalIn = System.in;
 
-    
+    // Test streams
+    private ByteArrayOutputStream outputStream;
 
-   @BeforeEach
-   void setUp() { 
-       
-    outputStream = new PipedOutputStream();
-    try {
-        PipedInputStream inputStream = new PipedInputStream(outputStream);
-    } catch (IOException ex) {
-        throw new RuntimeException("Failed to set up piped streams", ex);
+    @BeforeEach
+    void setUp() {
+        // Redirect output stream
+        outputStream = new ByteArrayOutputStream();
+        System.setOut(new PrintStream(outputStream));
+
+        // // Redirect input stream
+        // String simulatedInput = "";
+        // ByteArrayInputStream inputStream =
+        //         new ByteArrayInputStream(simulatedInput.getBytes());
+
+        // System.setIn(inputStream);
     }
 
-    System.setOut(new PrintStream(outputStream)); }
-
     @AfterEach
-    void tearDown() { System.setOut(originalOut); }
+    void tearDown() {
+        // Restore original streams
+        System.setOut(originalOut);
+        System.setIn(originalIn);
+    }
 
     /**
      * Execute program with no CLI argument. <br>
@@ -48,7 +57,7 @@ public class AppTest {
     public void startupWithoutArgument() {
         App.main(new String[] {});
         String output = outputStream.toString();
-        assertEquals("Please, input a valid option [1-2]", output.trim());
+        assertEquals(Message.INVALID_ARGS, output.trim());
     }
 
     /**
@@ -59,7 +68,7 @@ public class AppTest {
     public void startupWithInvalidArgument() {
         App.main(new String[] {"abc"});
         String output = outputStream.toString();
-        assertEquals("Please, input a valid option [1-2]", output.trim());
+        assertEquals(Message.INVALID_ARGS, output.trim());
     }
 
     /**
@@ -70,7 +79,7 @@ public class AppTest {
     public void startupWithExtraArguments() {
         App.main(new String[] {"1", "extra"});
         String output = outputStream.toString();
-        assertEquals("Please, input a valid option [1-2]", output.trim());
+        assertEquals(Message.INVALID_ARGS, output.trim());
     }
 
     /**
@@ -78,16 +87,20 @@ public class AppTest {
      * Verify output order is: Hello!, initial 3x3 board of zeros, then Player#<n>'s turn.
      */
     @Test
-    public void startupMessageAndOrder() throws IOException {
+    public void startupMessageAndOrder() {
         String[][] test_Strings = {{"1"}, {"2"}};
         for (String[] args : test_Strings) {
-            // Test with user goes first
+            outputStream.reset(); // Clear output stream before each test case
+            String simulatedInput = "q\n"; // Simulate user input to quit immediately
+            System.setIn(new ByteArrayInputStream(simulatedInput.getBytes()));
+            // Test
             App.main(args);
-            assertEquals("Hello!", outputStream.toString().trim());
+            String[] outputLines = outputStream.toString().trim().split("\\R");
+            assertEquals(Message.WELCOME_MESSAGE, outputLines[0]);
             assertEquals("| 0 | 0 | 0 |\n" +
                         "| 0 | 0 | 0 |\n" +
-                        "| 0 | 0 | 0 |", outputStream.toString().trim());
-            assertEquals("Player#" + args[0] + "'s turn", outputStream.toString().trim());
+                        "| 0 | 0 | 0 |", String.join("\n", outputLines[1], outputLines[2], outputLines[3]));
+            assertEquals(Message.getPlayersTurnMessage(1), outputLines[4]);
         }
     }
 }

@@ -1,18 +1,10 @@
 package org.myproject.player;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
-import org.myproject.board.*;
-
-import java.io.ByteArrayInputStream;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the User class. <br>
- *      The tests verify that the User can make valid decisions and properly handles invalid input.
+ *      User class is just to store player's and get console input from the user. <br>
+ *      So currently there is no logic to test in the User class.
  */
 class UserTest {
-
-    // Still not sure how to test the make_decision method since it relies on user input. 
 }

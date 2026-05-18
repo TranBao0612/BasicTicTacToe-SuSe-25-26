@@ -11,7 +11,7 @@ package org.myproject.board;
 class SquareBoard2DTest extends SquareBoardTest {
     // Implement the abstract method to create a SquareBoard2D instance
     @Override
-    protected SquareBoard createBoard(int size, int emptyCellValue) {
-        return new SquareBoard2D(size, emptyCellValue);
+    protected SquareBoard createBoard(int size) {
+        return new SquareBoard2D(size);
     }
 }

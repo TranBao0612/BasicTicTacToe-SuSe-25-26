@@ -1,192 +1,157 @@
 package org.myproject.board;
 
+import org.myproject.constant.Constant;
+
+import java.util.List;
 import java.util.ArrayList;
-import java.io.PrintStream;
 
 /**
- * This class represents a square board for a game. <br>
- *    Cell id starts from 1 and increase row-wise from top-left to bottom-right. <br>
- *    For setter and getter methods by row and column, row and column indices also start from 1. <br>
- *    The value of a cell can be set to represent the player occupying it, or a special value to represent an empty cell. <br>
- * The actual implementation of the board is left to subclasses, this class itself is abstract and cannot be instantiated directly.   
+ * This class represents a square board for a game.
+ * Cells on the board can be empty or occupied by a player.
+ * Cells id, row and column indices are 1-based.
  */
 public abstract class SquareBoard {
-    /**
-     * The value that represents an empty cell. <br>
-     * This value can be set by the constructor as 0 by default if not specified.
-     */
-    protected int EMPTY_CELL_VALUE;
-    /**
-     * The size of the board (number of rows and columns).
-     */
     protected int size;
-    /**
-     * The PrintStream to be used for printing the board. <br>
-     * This can be set by the constructor as System.out by default if not specified.
-     */
-    protected PrintStream print_stream;
+    protected int total_cells;
+    protected int empty_cell_value = Constant.EMPTY_CELL_VALUE;
 
-
-    // ---------Constructor---------
-    public SquareBoard(int size, int empty_cell_value, PrintStream print_stream) {
+    protected SquareBoard(int size) {
         this.size = size;
-        this.EMPTY_CELL_VALUE = empty_cell_value;
-        this.print_stream = print_stream;
-    }
-    public SquareBoard(int size, int empty_cell_value) {
-        this(size, empty_cell_value, System.out);
+        this.total_cells = size * size;
     }
 
 
+    // ------------------ Abstract methods to be implemented by subclasses ------------------
+    public abstract int getCellValue(int cell_id);
+    public abstract int getCellValue(int row, int col);
+
+    public abstract void setCellValue(int cell_id, int value);
+    public abstract void setCellValue(int row, int col, int value);
 
 
 
-    // ---------Abstract methods---------
+    // ------------------ Concrete methods implemented in this class ------------------
     /**
-     * Get the value of a cell by its id (starting from 1).
-     * @param cell_id the id of the cell (starting from 1)
-     * @return the value of the cell
+     * Get the size of the board.
+     * @return number of rows/columns in the square board.
      */
-    public abstract int get_value(int cell_id);
-    /**
-     * Set the value of a cell by its id (starting from 1) to represent the player occupying it.
-     * @param cell_id the id of the cell (starting from 1)
-     * @param player_id the id of the player occupying the cell
-     */
-    public abstract void set_value(int cell_id, int player_id);
-    /**
-     * Get the value of a cell by its row and column indices (both starting from 1).
-     * @param row the row index of the cell (starting from 1)
-     * @param col the column index of the cell (starting from 1)
-     * @return the value of the cell
-     */
-    public abstract int get_value(int row, int col);
-    /**
-     * Set the value of a cell by its row and column indices (both starting from 1) to represent the player occupying it.
-     * @param row the row index of the cell (starting from 1)
-     * @param col the column index of the cell (starting from 1)
-     * @param player_id the id of the player occupying the cell
-     */
-    public abstract void set_value(int row, int col, int player_id);
-
-
-
-
-
-    // ---------Concrete methods---------
-    public int get_size() {
+    public int getSize() {
         return size;
     }
-    public int get_empty_cell_value() {
-        return EMPTY_CELL_VALUE;
+    /**
+     * Get the total number of cells on the board.
+     * @return total number of cells on the board.
+     */
+    public int getTotalCells() {
+        return total_cells;
     }
-    public int get_number_of_cells() {
-        return size * size;
+    /**
+     * Get the value that represents an empty cell on the board.
+     * @return the value that represents an empty cell on the board.
+     */
+    public int getEmptyCellValue() {
+        return empty_cell_value;
     }
 
+
     /**
-     * Get a list of all empty cell ids on the board.
-     * @return an ArrayList of empty cell ids
+     * Check if the given cell id is valid for this board.
+     * @param cell_id the cell id to check.
+     * @return true if the cell id is valid, false otherwise.
      */
-    public ArrayList<Integer> get_empty_cells() {
-        ArrayList<Integer> empty_cells = new ArrayList<>();
-        for (int cell_id = 1; cell_id <= size * size; cell_id++) {
-            if (is_empty(cell_id))
-                empty_cells.add(cell_id);
+    public boolean isValidCell(int cell_id){
+        return cell_id >= 1 && cell_id <= total_cells;
+    }
+    /**
+     * Check if the given cell position is valid for this board.
+     * @param row the row of the cell to check.
+     * @param col the column of the cell to check.
+     * @return true if the cell position is valid, false otherwise.
+     */
+    public boolean isValidCell(int row, int col) {
+        return row >= 1 && row <= size && col >= 1 && col <= size;
+    }
+
+
+    /**
+     * Check if the cell with the given id is empty.
+     * @param cell_id the cell id to check.
+     * @return true if the cell is empty, false otherwise.
+     * @throws IllegalArgumentException if the cell id is invalid.
+     */
+    public boolean isCellEmpty(int cell_id) {
+        if (!isValidCell(cell_id)) {
+            throw new IllegalArgumentException("Invalid cell id: " + cell_id);
         }
-        return empty_cells;
-    }
-
-
-
-    /**
-     * Check if a cell is empty by its id (starting from 1).
-     * @param cell_id the id of the cell (starting from 1)
-     * @return true if the cell is empty, false otherwise
-     */
-    public boolean is_empty(int cell_id) {
-        return get_value(cell_id) == EMPTY_CELL_VALUE;
+        return getCellValue(cell_id) == empty_cell_value;
     }
     /**
-     * Check if a cell is empty by its row and column indices (both starting from 1).
-     * @param row the row index of the cell (starting from 1)
-     * @param col the column index of the cell (starting from 1)
-     * @return true if the cell is empty, false otherwise
+     * Check if the cell at the given position is empty.
+     * @param row the row of the cell to check.
+     * @param col the column of the cell to check.
+     * @return true if the cell is empty, false otherwise.
+     * @throws IllegalArgumentException if the cell position is invalid.
      */
-    public boolean is_empty(int row, int col) {
-        return get_value(row, col) == EMPTY_CELL_VALUE;
-    }
-
-
-
-    /**
-     * Check if a cell id is in valid range.
-     * @param cell_id the id of the cell (starting from 1)
-     * @return true if the cell id is valid, false otherwise
-     */
-    public boolean is_valid_cell_id(int cell_id) {
-        return cell_id > 0 && cell_id <= size*size;
-    }
-    /**
-     * Check if row and column indices are in valid range.
-     * @param row the row index of the cell (starting from 1)
-     * @param col the column index of the cell (starting from 1)
-     * @return true if the row and column indices are valid, false otherwise
-     */
-    public boolean is_valid_cell_id(int row, int col) {
-        return row > 0 && row <= size && col > 0 && col <= size;
-    }
-
-
-
-    /**
-     * Set the value that represents an empty cell. This method should also update all existing empty cells to the new value.
-     * @param value the new value that represents an empty cell
-     */
-    public void set_empty_value(int value) {
-        int old_empty_value = this.EMPTY_CELL_VALUE;
-        this.EMPTY_CELL_VALUE = value;
-        for(int cell_id = 1; cell_id <= size*size; cell_id++) {
-            if (get_value(cell_id) == old_empty_value)
-                set_value(cell_id, value);
+    public boolean isCellEmpty(int row, int col) {
+        if (!isValidCell(row, col)) {
+            throw new IllegalArgumentException("Invalid cell position: (" + row + ", " + col + ")");
         }
-    };
+        return getCellValue(row, col) == empty_cell_value;
+    }
 
+    /**
+     * Get a list of cell ids that are currently empty on the board.
+     * @return a list of cell ids that are currently empty on the board.
+     */
+    public List<Integer> getEmptyCells() {
+        List<Integer> emptyCells = new ArrayList<>();
+        for (int cell_id = 1; cell_id <= total_cells; cell_id++) {
+            if (isCellEmpty(cell_id)) {
+                emptyCells.add(cell_id);
+            }
+        }
+        return emptyCells;
+    }
 
-
+    /**
+     * Check if the board is empty (i.e., all cells are empty).
+     * @return true if the board is empty, false otherwise.
+     */
+    public boolean isEmpty() {
+        for (int cell_id = 1; cell_id <= total_cells; cell_id++) {
+            if (!isCellEmpty(cell_id)) {
+                return false;
+            }
+        }
+        return true;
+    }
     /**
      * Check if the board is full (i.e., no empty cells).
-     * @return true if the board is full, false otherwise
+     * @return true if the board is full, false otherwise.
      */
-    public boolean is_full() {
-        for(int cell_id = 1; cell_id <= size*size; cell_id++) {
-            if (get_value(cell_id) == EMPTY_CELL_VALUE)
+    public boolean isFull() {
+        for (int cell_id = 1; cell_id <= total_cells; cell_id++) {
+            if (isCellEmpty(cell_id)) {
                 return false;
+            }
         }
         return true;
     }
 
-
-    
     /**
-     * Get a string representation of the board for display purposes.
-     * @return a string representing the board
+     * Return a string representation of the board, showing the value of each cell in a grid format.
+     * @return a string representation of the board.
      */
-    public String to_string() {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
-        for(int i = 1; i <= size; i++) {
-            for(int j = 1; j <= size; j++) {
-                sb.append("| ").append(get_value(i, j)).append(" ");
+        for (int row = 1; row <= size; row++) {
+            for (int col = 1; col <= size; col++) {
+                sb.append("| ").append(getCellValue(row, col)).append(" ");
             }
-            sb.append("|\n");
+            sb.append("|");
+            if (row < size)
+                sb.append("\n");
         }
         return sb.toString();
-    };
-
-    /**
-     * Print the board to the console using the string representation from to_string() method.
-     */
-    public void print() {
-        print_stream.println(to_string());
     }
 }
