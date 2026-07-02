@@ -16,21 +16,9 @@ public class Tictactoe {
      * Players of the game. Can have more than 2 players in the future if we want to make it more complex.
      */
     private Player[] players = new Player[2];
-    /**
-     * Track the current turn of the game. It can be one of the index of the players array.
-     */
     private int current_turn;
-    /**
-     * The board of the game.
-     */
     private SquareBoard board;
-    /**
-     * Track if the game has ended. It will be true tic-tac-toe game ends or when user quit the game.
-     */
     private boolean end_game = false;
-    /**
-     * The IOService instance to handle input and output of the game. It will be used to get user input and print messages to the user.
-     */
     private IOService ioService;
 
 
@@ -49,6 +37,9 @@ public class Tictactoe {
 
 
     // ------------------------------ PUBLIC METHODS ------------------------------
+    /**
+     * Start the game and keep running until the game ends.
+     */
     public void startGame() {
         ioService.println(Message.WELCOME_MESSAGE);
         ioService.println(board.toString());
@@ -64,7 +55,8 @@ public class Tictactoe {
      *      and switch turn if the game has not ended.
      */
     public void runOneTurn() {
-        int decision = getDecisionOfCurrentPlayer();
+        ioService.println(Message.getPlayersTurnMessage(players[current_turn].getPlayerId()));
+        int decision = players[current_turn].makeDecision(board);
         // If the user quit the game, end the game and return.
         if (decision == -1) {
             end_game = true;
@@ -89,34 +81,13 @@ public class Tictactoe {
     
     // ------------------------------ PRIVATE METHODS -----------------------------    
     private void initializePlayers(int turn_of_human_user) {
-        players[0] = new User(turn_of_human_user, this.ioService);
-        players[1] = new Bot(3 - turn_of_human_user, this.ioService);
+        players[0] = new User(turn_of_human_user, ioService);
+        players[1] = new Bot(3 - turn_of_human_user);
         current_turn = turn_of_human_user - 1;
     }
 
     private void switchTurn() {
         current_turn = (current_turn + 1) % players.length;
-    }
-
-    /**
-     * Get the decision of the current player. 
-     * It will keep asking the user for input until the user input a valid decision or quit the game by inputting "q". 
-     * @return the decision of the current player, or -1 if the user quit the game.
-     */
-    private int getDecisionOfCurrentPlayer() {
-        while (true) {
-            ioService.println(Message.getPlayersTurnMessage(players[current_turn].getPlayerId()));
-            String user_input = players[current_turn].makeDecision(board).trim();
-            // Process the user input if valid.
-            if (TictactoeInputValidator.validate(user_input, ioService, board)) {
-                if (user_input.equals("q")) {
-                    ioService.println(Message.QUIT_MESSAGE);
-                    return -1;
-                } else {
-                    return Integer.parseInt(user_input);
-                }
-            }
-        }
     }
 
 

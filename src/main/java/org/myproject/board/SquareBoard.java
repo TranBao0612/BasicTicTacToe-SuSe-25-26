@@ -32,6 +32,32 @@ public abstract class SquareBoard {
 
     // ------------------ Concrete methods implemented in this class ------------------
     /**
+     * Get a list of all cell values on the board, in row-major order (i.e., left to right, top to bottom).
+     * @return a list of all cell values on the board, in row-major order.
+     */
+    public List<Integer> getAllCells() {
+        List<Integer> cells = new ArrayList<>();
+        for (int cell_id = 1; cell_id <= total_cells; cell_id++) {
+            cells.add(getCellValue(cell_id));
+        }
+        return cells;
+    }
+    /**
+     * Set the values of all cells on the board, given a list of cell values in row-major order (i.e., left to right, top to bottom).
+     * @param values a list of cell values to set on the board, in row-major order.
+     * @throws IllegalArgumentException if the number of cell values does not match the total number
+     */
+    public void setAllCells(List<Integer> values) {
+        if (values.size() != total_cells) {
+            throw new IllegalArgumentException("Invalid number of cell values: expected " + total_cells + ", got " + values.size());
+        }
+        for (int cell_id = 1; cell_id <= total_cells; cell_id++) {
+            setCellValue(cell_id, values.get(cell_id - 1));
+        }
+    }
+
+
+    /**
      * Get the size of the board.
      * @return number of rows/columns in the square board.
      */

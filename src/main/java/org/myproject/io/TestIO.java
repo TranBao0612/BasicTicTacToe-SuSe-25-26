@@ -1,75 +1,44 @@
 package org.myproject.io;
 
-import java.util.Queue;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
 /**
- * This class is a concrete implementation of the IOService interface 
- *      that can be used for testing purpose that require fake input and checking output functionality 
- *      without relying on the console.
+ * A predictable, memory-only test double for IOService.
+ * Perfectly substitutes ConsoleIO, TcpIO or other IO implementations during testing.
  */
 public class TestIO implements IOService {
-    protected Queue<String> inputs;
-    protected Queue<String> printed_messages;
-
-    public TestIO() {
-        this.inputs = new LinkedList<>();
-        this.printed_messages = new LinkedList<>();
-    }
+    private final Queue<String> simulatedInputs = new LinkedList<>();
+    private final List<String> capturedOutputs = new ArrayList<>();
 
     /**
-     * Get the next line of input. Simulates readLine() method by removing any trailing newline characters from the input string.
-     * @return the next line of input, or empty string if there are no more inputs.
+     * Pre-load inputs that the game will consume when calling nextLine()
      */
+    public void addSimulatedInput(String input) {
+        simulatedInputs.add(input);
+    }
+
+    public List<String> getCapturedOutputs() {
+        return capturedOutputs;
+    }
+
     @Override
     public String nextLine() {
-        String input = inputs.poll().replaceAll("\\R$", "");
-        return input != null ? input : "";
+        if (simulatedInputs.isEmpty()) {
+            throw new IllegalStateException("Game requested input, but no simulated inputs are left!");
+        }
+        return simulatedInputs.poll();
     }
-    /**
-     * Simulates the print() method by adding the message to the printed_messages queue.
-     * @param message the message to print
-     */
+
     @Override
     public void print(String message) {
-        printed_messages.offer(message);
+        capturedOutputs.add(message);
     }
-    /**
-     * Simulates the println() method by adding the message with a newline character to the printed_messages queue.
-     * @param message the message to print
-     */
+
     @Override
     public void println(String message) {
-        printed_messages.offer(message + System.lineSeparator());
-    }
-
-
-    /**
-     * Add an input string to the inputs queue. This method can be used to simulate user input for testing purposes.
-     * @param input the input string to add
-     */
-    public void addInput(String input) {
-        this.inputs.offer(input);
-    }
-    /**
-     * Get the next printed message. This method can be used to check the output of the print and println methods for testing purposes.
-     * @return the next printed message, or an empty string if none has been printed.
-     */
-    public String getPrintedMessage() {
-        String message = printed_messages.poll();
-        return message != null ? message : "";
-    }
-
-    /**
-     * Clear all inputs. This method can be used to reset the state of the TestIO instance between tests.
-     */
-    public void clearInputs() {
-        inputs.clear();
-    }
-    /**
-     * Clear all printed messages. This method can be used to reset the state of the TestIO instance between tests.
-     */
-    public void clearPrintedMessages() {
-        printed_messages.clear();
+        capturedOutputs.add(message + "\n");
     }
 }

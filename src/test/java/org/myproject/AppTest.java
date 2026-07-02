@@ -1,15 +1,11 @@
 package org.myproject;
 
-import org.myproject.io.TestIO;
 import org.myproject.constant.Message;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.io.PrintStream;
 import java.io.InputStream;
 
@@ -23,7 +19,7 @@ import org.junit.jupiter.api.Test;
 public class AppTest {
     // Save original streams
     private final PrintStream originalOut = System.out;
-    private final java.io.InputStream originalIn = System.in;
+    private final InputStream originalIn = System.in;
 
     // Test streams
     private ByteArrayOutputStream outputStream;

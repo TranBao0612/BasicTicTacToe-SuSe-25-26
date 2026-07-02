@@ -17,6 +17,10 @@ public abstract class Player {
         this.ioService = ioService;
     }
 
+    protected Player(int player_id) {
+        this.player_id = player_id;
+    }
+
     /**
      * Get the id of the player.
      * @return the id of the player.
@@ -26,10 +30,10 @@ public abstract class Player {
     }
 
     /**
-     * Make a decision for the player based on the current state of the board.
+     * Make a move for the player based on the current state of the board.
      * @param board the current state of the board.
-     * @return the decision made by the player.
+     * @return the move made by the player.
      */
-    public abstract String makeDecision(SquareBoard board);
+    public abstract int makeDecision(SquareBoard board);
 }
 

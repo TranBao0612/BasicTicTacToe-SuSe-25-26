@@ -34,6 +34,7 @@ public final class TictactoeWinner {
         return -1;
     }
 
+
     // -----------------------Private methods-----------------------
     /**
      * Check if there is a winner by row.
