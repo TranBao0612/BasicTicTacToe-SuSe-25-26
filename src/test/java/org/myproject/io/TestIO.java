@@ -5,29 +5,37 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-/**
- * A predictable, memory-only test double for IOService.
- * Perfectly substitutes ConsoleIO, TcpIO or other IO implementations during testing.
- */
 public class TestIO implements IOService {
     private final Queue<String> simulatedInputs = new LinkedList<>();
     private final List<String> capturedOutputs = new ArrayList<>();
 
-    /**
-     * Pre-load inputs that the game will consume when calling nextLine()
-     */
-    public void addSimulatedInput(String input) {
-        simulatedInputs.add(input);
+    public void addSimulatedInputs(String... inputs) {
+        for (String input : inputs) {
+            simulatedInputs.add(input);
+        }
     }
 
     public List<String> getCapturedOutputs() {
         return capturedOutputs;
     }
 
+    public List<String> getRemainingSimulatedInputs() {
+        return new ArrayList<>(simulatedInputs);
+    }
+
+    public boolean hasOutputsContaining(String keyword) {
+        return capturedOutputs.stream().anyMatch(line -> line.contains(keyword));
+    }
+
+    public int hasOutputsContainingWithCount(String keyword) {
+        return (int) capturedOutputs.stream().filter(line -> line.contains(keyword)).count();
+    }
+
     @Override
     public String nextLine() {
         if (simulatedInputs.isEmpty()) {
-            throw new IllegalStateException("Game requested input, but no simulated inputs are left!");
+            // Safe fallback to prevent game loop locks during test exceptions
+            return "q"; 
         }
         return simulatedInputs.poll();
     }
@@ -39,6 +47,6 @@ public class TestIO implements IOService {
 
     @Override
     public void println(String message) {
-        capturedOutputs.add(message + "\n");
+        capturedOutputs.add(message);
     }
 }

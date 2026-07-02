@@ -11,12 +11,6 @@ import org.myproject.io.IOService;
  *      and that it selects the appropriate cell based on the current state of the board.
  */
 class BotTest extends PlayerTest {
-
-    @Override
-    protected Player createPlayer(int playerId) {
-        return new Bot(playerId);
-    }
-
     @Override
     protected Player createPlayer(int playerId, IOService ioService) {
         return new Bot(playerId, ioService);
@@ -24,7 +18,7 @@ class BotTest extends PlayerTest {
 
     // This test check the correctness of the bot's decision-making logic.
     @Test
-    void botShouldPickFirstAvailableCell() {
+    void testComputerMoveStrategy() {
         SquareBoard board = new SquareBoard1D(3);
         Bot bot = new Bot(2);
 

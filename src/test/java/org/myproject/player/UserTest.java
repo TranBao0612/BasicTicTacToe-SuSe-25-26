@@ -9,12 +9,6 @@ import org.myproject.io.IOService;
  *      So currently there is no logic to test in the User class.
  */
 class UserTest extends PlayerTest {
-
-    @Override
-    protected Player createPlayer(int playerId) {
-        return new User(playerId, null);
-    }
-
     @Override
     protected Player createPlayer(int playerId, IOService ioService) {
         return new User(playerId, ioService);

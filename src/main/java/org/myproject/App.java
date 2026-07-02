@@ -6,6 +6,8 @@ import org.myproject.io.*;
 
 
 public class App {
+    public static IOService ioService = new ConsoleIO();
+
     public static boolean validateArgs(String[] args, IOService ioService) {
             if(args.length == 1) {
             try{
@@ -29,7 +31,6 @@ public class App {
 
     public static void main(String[] args) {
         int turn_of_user;
-        ConsoleIO ioService = new ConsoleIO();
 
         if (!validateArgs(args, ioService)) {
             return;

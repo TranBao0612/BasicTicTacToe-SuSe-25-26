@@ -6,8 +6,10 @@ import org.myproject.io.IOService;
 
 public abstract class PlayerTest {
     // Factory method to create a board instance for testing
-    protected abstract Player createPlayer(int playerId);
     protected abstract Player createPlayer(int playerId, IOService ioService);
+    protected Player createPlayer(int playerId) {
+        return createPlayer(playerId, null);
+    }
 
     @Test
     void testGetPlayerId() {

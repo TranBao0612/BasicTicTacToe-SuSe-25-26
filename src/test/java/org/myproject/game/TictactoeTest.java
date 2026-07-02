@@ -19,8 +19,8 @@ public class TictactoeTest {
     @Test
     void testRunOneTurn_UserQuitsImmediately() {
         // Arrange: Human player goes first (turn 1).
-        // When User.makeDecision calls nextLine(), it will read "-1"
-        testIO.addSimulatedInput("-1");
+        // When User.makeDecision calls nextLine(), it will read "q"
+        testIO.addSimulatedInputs("q");
         
         Tictactoe game = new Tictactoe(1, testIO);
 
