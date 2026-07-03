@@ -5,12 +5,15 @@ import org.myproject.common.io.*;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Server {
     public static IOService ioService = new ConsoleIO();
 
     public static void main(String[] args) {
         ServerSocket serverSocket = null;
+        ExecutorService executorService = Executors.newFixedThreadPool(4);
 
         try {
             serverSocket = new ServerSocket(Constant.SERVER_PORT);
@@ -21,7 +24,7 @@ public class Server {
                 Socket clientSocket = serverSocket.accept();
                 ioService.println("Client connected: " + clientSocket.getInetAddress());
 
-                new Thread(new ClientHandler(clientSocket, ioService)).start();
+                executorService.submit(new ClientHandler(clientSocket, ioService));
             }
 
         } catch (Exception e) {
@@ -34,6 +37,7 @@ public class Server {
                     ioService.println("Error closing server socket: " + e.getMessage());
                 }
             }
+            executorService.shutdown();
         }
 
     }

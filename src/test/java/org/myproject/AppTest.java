@@ -124,7 +124,7 @@ public class AppTest {
         List<String> output = testIO.getCapturedOutputs();
         assertEquals(Message.WELCOME_MESSAGE, output.get(0));
         assertEquals(String.format(printedBoardFormat, 0, 0, 0, 0, 0, 0, 0, 0, 0), output.get(1));
-        assertEquals(Message.getPlayersTurnMessage(1), output.get(2));
+        assertEquals(Message.getPlayersTurnMessage(1, false), output.get(2));
     }
 
     /**
