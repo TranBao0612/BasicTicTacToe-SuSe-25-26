@@ -16,7 +16,9 @@ class BotTest extends PlayerTest {
         return new Bot(playerId, ioService);
     }
 
-    // This test check the correctness of the bot's decision-making logic.
+    /**
+     * TS-017
+     */
     @Test
     void testComputerMoveStrategy() {
         SquareBoard board = new SquareBoard1D(3);

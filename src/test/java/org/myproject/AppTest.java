@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class AppTest {
+    // Missing: TS-018, TS0-19, TS-021 -> TS-024
 
     private TestIO testIO;
     private String printedBoardFormat = "| %d | %d | %d |\n| %d | %d | %d |\n| %d | %d | %d |";
@@ -23,6 +24,9 @@ public class AppTest {
 
 
     // -----------------------Startup Argument Validation Tests-----------------------
+    /**
+     * TS-003
+     */
     @Test
     void testStartupWithoutArgument_Fails() {
         String[] args = {};
@@ -32,6 +36,9 @@ public class AppTest {
         assertTrue(testIO.hasOutputsContaining(Message.INVALID_ARGS)); 
     }
 
+    /**
+     * TS-004
+     */
     @Test
     void testStartupWithInvalidArgument_Fails() {
         String[] args = {"3"}; // Only 1 or 2 allowed
@@ -41,6 +48,9 @@ public class AppTest {
         assertTrue(testIO.hasOutputsContaining(Message.INVALID_ARGS));
     }
 
+    /**
+     * TS-004
+     */
     @Test
     void testStartupWithNonNumericArgument_Fails() {
         String[] args = {"abc"};
@@ -50,6 +60,9 @@ public class AppTest {
         assertTrue(testIO.hasOutputsContaining(Message.INVALID_ARGS));
     }
 
+    /**
+     * TS-025
+     */
     @Test
     void testStartupWithExtraArguments_Fails() {
         String[] args = {"1", "2"};
@@ -59,9 +72,24 @@ public class AppTest {
         assertTrue(testIO.hasOutputsContaining(Message.INVALID_ARGS));
     }
 
+    /**
+     * TS-005
+     */
     @Test
-    void testStartupWithValidArguments_Passes() {
+    void testStartupWithHumanGoesFirst_Passes() {
         String[] args = {"1"};
+        boolean isValid = App.validateArgs(args, testIO);
+
+        assertTrue(isValid);
+        assertFalse(testIO.hasOutputsContaining(Message.INVALID_ARGS));
+    }
+
+    /**
+     * TS-005
+     */
+    @Test
+    void testStartupWithBotGoesFirst_Passes() {
+        String[] args = {"2"};
         boolean isValid = App.validateArgs(args, testIO);
 
         assertTrue(isValid);
@@ -71,6 +99,9 @@ public class AppTest {
 
 
     // -----------------------Output Tests-----------------------
+    /**
+     * TS-001
+     */
     @Test
     void testStartupMessageAndOrder_HumanFirst() {
         String[] args = {"1"};
@@ -78,9 +109,13 @@ public class AppTest {
 
         List<String> output = testIO.getCapturedOutputs();
         assertEquals(Message.WELCOME_MESSAGE, output.get(0));
+        assertEquals(String.format(printedBoardFormat, 0, 0, 0, 0, 0, 0, 0, 0, 0), output.get(1));
         assertEquals(Message.getPlayersTurnMessage(1), output.get(2));
     }
 
+    /**
+     * TS-002
+     */
     @Test
     void testStartupMessageAndOrder_BotFirst() {
         String[] args = {"2"};
@@ -88,9 +123,13 @@ public class AppTest {
 
         List<String> output = testIO.getCapturedOutputs();
         assertEquals(Message.WELCOME_MESSAGE, output.get(0));
+        assertEquals(String.format(printedBoardFormat, 0, 0, 0, 0, 0, 0, 0, 0, 0), output.get(1));
         assertEquals(Message.getPlayersTurnMessage(1), output.get(2));
     }
 
+    /**
+     * TS-006
+     */
     @Test
     void testInitialBoardMapping() {
         String[] args = {"1"};
@@ -100,9 +139,38 @@ public class AppTest {
         assertEquals(String.format(printedBoardFormat, 0, 0, 0, 0, 0, 0, 0, 0, 0), output.get(1));
     }
 
+    /**
+     * TS-009
+     */
     @Test
-    void testDisplayQuitMessage() {
+    void testDisplayQuitMessage_Lowercase() {
         testIO.addSimulatedInputs("q");
+        String[] args = {"1"};
+        App.main(args);
+
+        List<String> output = testIO.getCapturedOutputs();
+        assertEquals(Message.QUIT_MESSAGE, output.get(output.size() - 1));
+    }
+
+    /**
+     * TS-010
+     */
+    @Test
+    void testDisplayQuitMessage_Uppercase() {
+        testIO.addSimulatedInputs("Q");
+        String[] args = {"1"};
+        App.main(args);
+
+        List<String> output = testIO.getCapturedOutputs();
+        assertEquals(Message.QUIT_MESSAGE, output.get(output.size() - 1));
+    }
+
+    /**
+     * TS-010, TS-020, TS-026
+     */
+    @Test
+    void testDisplayQuitMessage_Whitespace() {
+        testIO.addSimulatedInputs("     q   ");
         String[] args = {"1"};
         App.main(args);
 
@@ -113,6 +181,9 @@ public class AppTest {
 
 
     // -----------------------Input Handling Tests-----------------------
+    /**
+     * TS-008
+     */
     @Test
     void testHumanNonIntegerAndWhitespaceInput_Reprompts() {
         testIO.addSimulatedInputs("x", "", "6 X", "q");
@@ -122,6 +193,9 @@ public class AppTest {
         assertEquals(3, testIO.hasOutputsContainingWithCount(Message.getInvalidInputMessage(9)));
     }
 
+    /**
+     * TS-011
+     */
     @Test
     void testHumanOutOfRangeIntegerInput_Reprompts() {
         testIO.addSimulatedInputs("10", "q");
@@ -129,8 +203,12 @@ public class AppTest {
         App.main(args);
 
         assertTrue(testIO.hasOutputsContaining(Message.getInvalidInputMessage(9)));
+        assertEquals(2, testIO.hasOutputsContainingWithCount(Message.getPlayersTurnMessage(1)));
     }
 
+    /**
+     * TS-012
+     */
     @Test
     void testHumanOccupiedCellInput_PreventsOverwriting() {
         // Scenario: Human selects cell 1. Bot then naturally occupies cell 2 (first free cell strategy).
@@ -143,6 +221,9 @@ public class AppTest {
         assertFalse(testIO.hasOutputsContaining(String.format(printedBoardFormat, 1, 1, 0, 0, 0, 0, 0, 0, 0)));
     }
 
+    /**
+     * TS-007, TS-026
+     */
     @Test
     void testHumanValidMove_UpdatesBoard() {
         testIO.addSimulatedInputs("5", "   6    ", "q");
@@ -153,6 +234,9 @@ public class AppTest {
         assertTrue(testIO.hasOutputsContaining(String.format(printedBoardFormat, 2, 0, 0, 0, 1, 1, 0, 0, 0)));
     }
 
+    /**
+     * TS-009
+     */
     @Test
     void testNoInputAccepted_AfterGameEnds() {
         testIO.addSimulatedInputs("1", "4", "7", "q", "2"); // Human wins
@@ -165,24 +249,35 @@ public class AppTest {
 
 
     // -----------------------Game Outcome Tests-----------------------
+    /**
+     * TS-013, TS-020
+     */
     @Test
     void testHumanWinDetection() {
         testIO.addSimulatedInputs("1", "4", "7");
         String[] args = {"1"};
         App.main(args);
 
-        assertTrue(testIO.hasOutputsContaining(Message.getWinnerMessage(1)));
+        List<String> output = testIO.getCapturedOutputs();
+        assertEquals(Message.getWinnerMessage(1), output.get(output.size() - 1));
     }
 
+    /**
+     * TS-014, TS-020
+     */
     @Test
     void testBotWinDetection() {
         testIO.addSimulatedInputs("4", "5", "7");
         String[] args = {"1"};
         App.main(args);
 
-        assertTrue(testIO.hasOutputsContaining(Message.getWinnerMessage(2)));
+        List<String> output = testIO.getCapturedOutputs();
+        assertEquals(Message.getWinnerMessage(2), output.get(output.size() - 1));
     }
 
+    /**
+     * TS-015, TS-016, TS-020
+     */
     @Test
     void testDrawDetection() {
         // Forces a draw scenario by filling the board without any player winning.
@@ -193,15 +288,20 @@ public class AppTest {
         String[] args = {"2"};
         App.main(args);
 
-        assertTrue(testIO.hasOutputsContaining(Message.DRAW_MESSAGE));
+        List<String> output = testIO.getCapturedOutputs();
+        assertEquals(Message.DRAW_MESSAGE, output.get(output.size() - 1));
     }
 
+    /**
+     * TS-010, TS-020
+     */
     @Test
     void testGameQuitDetection() {
         testIO.addSimulatedInputs("q");
         String[] args = {"1"};
         App.main(args);
 
-        assertTrue(testIO.hasOutputsContaining(Message.QUIT_MESSAGE));
+        List<String> output = testIO.getCapturedOutputs();
+        assertEquals(Message.QUIT_MESSAGE, output.get(output.size() - 1));
     }
 }

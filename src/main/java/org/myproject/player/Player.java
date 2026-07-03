@@ -2,6 +2,7 @@ package org.myproject.player;
 
 import org.myproject.io.IOService;
 import org.myproject.board.SquareBoard;
+import org.myproject.constant.Message;
 
 /**
  * This class represents a player in the game.
@@ -11,14 +12,16 @@ import org.myproject.board.SquareBoard;
 public abstract class Player {
     protected int player_id;
     protected IOService ioService;
+    protected String promptMessage;
 
     protected Player(int player_id, IOService ioService) {
         this.player_id = player_id;
         this.ioService = ioService;
+        this.promptMessage = Message.getPlayersTurnMessage(player_id);
     }
 
     protected Player(int player_id) {
-        this.player_id = player_id;
+        this(player_id, null);
     }
 
     /**

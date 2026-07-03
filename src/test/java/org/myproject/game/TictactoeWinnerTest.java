@@ -21,6 +21,9 @@ public class TictactoeWinnerTest {
         assertEquals(-1, TictactoeWinner.getWinner(board));
     }
 
+    /**
+     * TS-015
+     */
     @Test
     void testGetWinner_RowWin() {
         board.setCellValue(2, 1, 1);
@@ -30,6 +33,9 @@ public class TictactoeWinnerTest {
         assertEquals(1, TictactoeWinner.getWinner(board));
     }
 
+    /**
+     * TS-015
+     */
     @Test
     void testGetWinner_ColumnWin() {
         board.setCellValue(1, 3, 2);
@@ -39,6 +45,9 @@ public class TictactoeWinnerTest {
         assertEquals(2, TictactoeWinner.getWinner(board));
     }
 
+    /**
+     * TS-015
+     */
     @Test
     void testGetWinner_FirstDiagonalWin() {
         board.setCellValue(1, 1, 1);
@@ -48,6 +57,9 @@ public class TictactoeWinnerTest {
         assertEquals(1, TictactoeWinner.getWinner(board));
     }
 
+    /**
+     * TS-015
+     */
     @Test
     void testGetWinner_SecondDiagonalWin() {
         board.setCellValue(1, 3, 2);
@@ -57,6 +69,9 @@ public class TictactoeWinnerTest {
         assertEquals(2, TictactoeWinner.getWinner(board));
     }
 
+    /**
+     * TS-016
+     */
     @Test
     void testGetWinner_Draw() {
         // X O X

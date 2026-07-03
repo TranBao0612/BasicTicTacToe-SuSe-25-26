@@ -38,6 +38,8 @@ public class User extends Player {
             } catch (Exception e) {
                 ioService.println("An unexpected error occurred: " + e.getMessage());
             }
+            // Prompt the user again for input after handling invalid input or exceptions.
+            ioService.println(promptMessage);
         }
     }
     
