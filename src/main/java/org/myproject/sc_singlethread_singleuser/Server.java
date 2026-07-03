@@ -21,10 +21,7 @@ public class Server {
                 Socket clientSocket = serverSocket.accept();
                 ioService.println("Client connected: " + clientSocket.getInetAddress());
 
-                new ClientHandler(clientSocket, ioService).run();
-
-                // // Handle the client connection in a separate thread
-                // new Thread(new ClientHandler(clientSocket, consoleIO)).start();
+                new Thread(new ClientHandler(clientSocket, ioService)).start();
             }
 
         } catch (Exception e) {
