@@ -4,15 +4,14 @@ import org.myproject.sc_stateless_http.JsonDTO.*;
 import org.myproject.common.board.*;
 import org.myproject.common.constant.*;
 import org.myproject.common.player.Bot;
-import org.myproject.common.io.IOService;
 import org.myproject.common.game.TictactoeWinner;
 
 import com.google.gson.*;
-import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletException;
 
 import java.io.*;
 import java.util.stream.Collectors;

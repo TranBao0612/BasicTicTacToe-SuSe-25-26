@@ -5,8 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.myproject.common.board.*;
 import org.myproject.common.io.IOService;
-import org.myproject.common.player.Bot;
-import org.myproject.common.player.Player;
 
 /**
  * Unit tests for the Bot class. <br>

@@ -1,8 +1,6 @@
 package org.myproject.common.player;
 
 import org.myproject.common.io.IOService;
-import org.myproject.common.player.Player;
-import org.myproject.common.player.User;
 
 
 /**

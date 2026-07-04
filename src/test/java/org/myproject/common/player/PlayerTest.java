@@ -2,7 +2,6 @@ package org.myproject.common.player;
 
 import org.junit.jupiter.api.Test;
 import org.myproject.common.io.IOService;
-import org.myproject.common.player.Player;
 
 import static org.junit.jupiter.api.Assertions.*;
 

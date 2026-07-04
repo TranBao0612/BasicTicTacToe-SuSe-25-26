@@ -3,7 +3,6 @@ package org.myproject.common.game;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.myproject.common.constant.Message;
-import org.myproject.common.game.Tictactoe;
 import org.myproject.common.io.TestIO;
 
 import static org.junit.jupiter.api.Assertions.*;

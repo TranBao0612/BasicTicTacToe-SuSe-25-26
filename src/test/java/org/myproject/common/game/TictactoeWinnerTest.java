@@ -3,8 +3,6 @@ package org.myproject.common.game;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.myproject.common.board.*;
-import org.myproject.common.game.TictactoeWinner;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;

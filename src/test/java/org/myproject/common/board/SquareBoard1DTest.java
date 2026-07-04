@@ -1,8 +1,5 @@
 package org.myproject.common.board;
 
-import org.myproject.common.board.SquareBoard;
-import org.myproject.common.board.SquareBoard1D;
-
 /**
  * Unit tests for SquareBoard1D implementation. <br>
  * It extends the abstract SquareBoardTest to run all the generic tests on the 1D implementation. <br>

@@ -5,8 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-import org.myproject.common.io.IOService;
-
 public class TestIO implements IOService {
     private final Queue<String> simulatedInputs = new LinkedList<>();
     private final List<String> capturedOutputs = new ArrayList<>();
