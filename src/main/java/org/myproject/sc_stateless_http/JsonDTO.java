@@ -17,6 +17,7 @@ public class JsonDTO {
         public String new_board_msg = null;
     }
     public static class MoveResponse {
+        public Integer winner_id = null;
         public String end_message;
         public Boolean end_status = false;
         public String user_move_board_msg;

@@ -138,6 +138,7 @@ public class ClientHandler implements HttpHandler {
         // 1. Player's Turn Logic
         board.setCellValue(playerMove, playerTurn);
         jsonResponse.user_move_board_msg = board.serialize();
+        jsonResponse.winner_id = TictactoeWinner.getWinner(board);
         jsonResponse.end_message = getEndGameMsg(board);
         if (jsonResponse.end_message != null) {
             jsonResponse.end_status = true;
@@ -149,6 +150,7 @@ public class ClientHandler implements HttpHandler {
             board.setCellValue(botMove, botTurn);
             jsonResponse.bot_move = botMove;
             jsonResponse.bot_move_board_msg = board.serialize();
+            jsonResponse.winner_id = TictactoeWinner.getWinner(board);
             jsonResponse.end_message = getEndGameMsg(board);
             if (jsonResponse.end_message != null) {
                 jsonResponse.end_status = true;

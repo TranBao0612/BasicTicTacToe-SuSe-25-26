@@ -19,7 +19,7 @@ public class Server {
     public static void main(String[] args) {
 
         try {
-            server = HttpServer.create(new InetSocketAddress(Constant.SERVER_PORT), 0);
+            server = HttpServer.create(new InetSocketAddress(Constant.HTTP_PORT), 0);
             
             ClientHandler handler = new ClientHandler(consoleIO);
             server.createContext("/start", handler);
@@ -28,7 +28,7 @@ public class Server {
             // Force the server to use exactly one background thread for all requests
             server.setExecutor(singleThreadExecutor);            
             server.start();
-            consoleIO.println("Single-threaded HTTP Server started on port " + Constant.SERVER_PORT);
+            consoleIO.println("Single-threaded HTTP Server started on port " + Constant.HTTP_PORT);
 
         } catch (Exception e) {
             consoleIO.println("Error occurred: " + e.getMessage());

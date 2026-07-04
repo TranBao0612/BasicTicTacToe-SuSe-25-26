@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe - Independent Web Client</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            text-align: center; 
+            background: #f4f4f9; 
+            padding: 40px 20px; 
+            margin: 0; 
+        }
+        .hidden { display: none !important; }
+        #setup-pane, #game-pane { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            display: inline-block; 
+            min-width: 300px;
+        }
+        .grid { 
+            display: grid; 
+            gap: 8px; 
+            margin: 20px auto; 
+            background-color: #bbc; 
+            padding: 8px; 
+            border-radius: 6px; 
+        }
+        .cell { 
+            background: #fff; 
+            aspect-ratio: 1; 
+            font-size: 2.2rem; 
+            font-weight: bold; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            user-select: none; 
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .cell:hover { background: #f0f4ff; }
+        .cell.taken { 
+            cursor: not-allowed; 
+            background: #e8e8e8; 
+        }
+        .cell.user-marker { color: #2563eb; }
+        .cell.bot-marker { color: #dc2626; }
+        
+        #status { 
+            font-size: 1.3rem; 
+            margin-top: 20px; 
+            font-weight: 600; 
+            color: #333; 
+        }
+        #error-msg {
+            color: #dc2626;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        select, button { 
+            padding: 10px 20px; 
+            font-size: 1rem; 
+            margin-top: 10px; 
+            cursor: pointer; 
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            font-weight: bold;
+        }
+        button:hover { background-color: #1d4ed8; }
+    </style>
+</head>
+<body>
+
+    <div id="setup-pane">
+        <h2>Tic Tac Toe Setup</h2>
+        <label for="marker-select">Choose Your Turn / Marker: </label>
+        <select id="marker-select">
+            <option value="1">Play First (X)</option>
+            <option value="2">Play Second (O)</option>
+        </select>
+        <br><br>
+        <button onclick="startGame()">Start Match</button>
+        <div id="setup-error" class="error-msg"></div>
+    </div>
+
+    <div id="game-pane" class="hidden">
+        <h3 id="game-welcome"></h3>
+        <div id="board" class="grid"></div>
+        <div id="status">Your Turn!</div>
+        <div id="error-msg"></div>
+        <div style="margin-top: 20px;">
+            <button onclick="startGame()" style="background-color: #10b981;">Start New Game</button>
+        </div>
+    </div>
+
+<script>
+    // Configuration pointing directly to your running backend port
+    // const SERVER_BASE_URL = "http://localhost:8080/BasicTicTacToe-Server-1.0-SNAPSHOT";
+    const SERVER_BASE_URL = "http://localhost:8080"; 
+
+    // Game state tracking variables
+    let userTurnOrder = 1; 
+    let userMarker = 'X';
+    let botMarker = 'O';
+    
+    let boardSize = 3; // Stored state retrieved dynamically from /start response
+    let virtualBoard = []; // Array keeping track of board values internally (null, 'X', or 'O')
+    let gameActive = false; // Flag to prevent interactions after game conclusion
+
+    /**
+     * Initializes a game instance by triggering a direct HTTP POST request to your backend server
+     */
+    async function startGame() {
+        document.getElementById("setup-error").innerText = "";
+        const selector = document.getElementById("marker-select");
+        userTurnOrder = parseInt(selector.value);
+        
+        userMarker = (userTurnOrder === 1) ? 'X' : 'O';
+        botMarker = (userTurnOrder === 1) ? 'O' : 'X';
+
+        const payload = { turn: userTurnOrder };
+
+        try {
+            const response = await fetch(`${SERVER_BASE_URL}/start`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server returned status code: ${response.status}`);
+            }
+
+            const startData = await response.json();
+            handleStartResponse(startData);
+
+        } catch (error) {
+            document.getElementById("setup-error").innerText = `Failed to connect to server: ${error.message}`;
+        }
+    }
+
+    /**
+     * Handles layout configuration and setup processing from backend payloads
+     */
+    function handleStartResponse(data) {
+        gameActive = true; // Enable game interactions
+        // Retrieve and lock board size structure safely into state memory
+        boardSize = data.board_size || 3; 
+        
+        // Initialize independent tracking matrix mapping size boundaries
+        const totalCells = boardSize * boardSize;
+        virtualBoard = new Array(totalCells).fill(null);
+
+        // UI transitions
+        document.getElementById("setup-pane").classList.add("hidden");
+        document.getElementById("game-pane").classList.remove("hidden");
+        document.getElementById("game-welcome").innerText = data.welcome_message || "Game Match Active";
+        document.getElementById("error-msg").innerText = "";
+
+        buildMatrixGrid(boardSize);
+
+        // Process pre-existing bot initialization moves if playing second (Turn = 2)
+        if (data.bot_move !== null && data.bot_move !== undefined) {
+            const botCellId = parseInt(data.bot_move);
+            markCell(botCellId, botMarker);
+        }
+    }
+
+    /**
+     * Builds dynamic grid structures based entirely on variables locked in initialization step
+     */
+    function buildMatrixGrid(size) {
+        const boardContainer = document.getElementById("board");
+        boardContainer.innerHTML = "";
+        boardContainer.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+        boardContainer.style.width = `${size * 80}px`;
+
+        const totalCells = size * size;
+        for (let i = 1; i <= totalCells; i++) { // Cell IDs start from 1
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+            cell.setAttribute("id", `cell-${i}`);
+            cell.setAttribute("data-id", i);
+            
+            cell.addEventListener("click", () => handleCellClick(i));
+            boardContainer.appendChild(cell);
+        }
+    }
+
+    /**
+     * Independent Front-End validation handler checking for board vacancies locally
+     */
+    async function handleCellClick(cellId) {
+        if (!gameActive) return;
+
+        document.getElementById("error-msg").innerText = "";
+        
+        // 1. Front-End independent choice validation 
+        // Array mapping index structure matches cellId minus 1 adjustment
+        if (virtualBoard[cellId - 1] !== null) {
+            document.getElementById("error-msg").innerText = "Invalid Choice! Square is already occupied.";
+            return;
+        }
+
+        // 2. Optimistically fill layout position visually and globally within state array
+        markCell(cellId, userMarker);
+        document.getElementById("status").innerText = "Waiting for server move...";
+
+        // 3. Construct current board state message for request payload match requirements
+        const boardMsgString = buildBoardMessageString();
+
+        const movePayload = {
+            turn: userTurnOrder,
+            board_msg: boardMsgString,
+            move: cellId
+        };
+
+        try {
+            const response = await fetch(`${SERVER_BASE_URL}/move`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(movePayload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`Server returned status code: ${response.status}`);
+            }
+
+            const moveData = await response.json();
+            handleMoveResponse(moveData);
+
+        } catch (error) {
+            document.getElementById("error-msg").innerText = `Communication loss: ${error.message}`;
+            document.getElementById("status").innerText = "Error encountered.";
+        }
+    }
+
+    /**
+     * Translates Javascript internal state tracking array to exact backend tracking representations 
+     */
+    function buildBoardMessageString() {
+        const copyBoard = structuredClone(virtualBoard);
+        copyBoard.forEach((cell, index) => {
+            if (cell === null) {
+                copyBoard[index] = "0";
+            } else if (cell === userMarker) {
+                copyBoard[index] = userTurnOrder === 1 ? "1" : "2"; // User's marker representation based on turn order
+            } else if (cell === botMarker) {
+                copyBoard[index] = userTurnOrder === 1 ? "2" : "1"; // Bot's marker representation based on user's turn order
+            }
+        });
+        return copyBoard.join(",");
+    }
+
+    /**
+     * Coordinates final changes returned from your backend processing server pipeline
+     */
+    function handleMoveResponse(data) {
+        // 1. Check for automated server response updates
+        if (data.bot_move !== null && data.bot_move !== undefined) {
+            const botCellId = parseInt(data.bot_move);
+            markCell(botCellId, botMarker);
+        }
+
+        // 2. Assess match terminal boundaries
+        if (data.end_status === true || data.end_status === "true") {
+            let endMsg;
+            if (data.winner_id === userTurnOrder) {
+                endMsg = "Congratulations! You won the match!";
+            } else if (data.winner_id === -1) {
+                endMsg = "It's a draw! No winner this time.";
+            } else if (data.winner_id === 3 - userTurnOrder) {
+                endMsg = "Bot wins! Better luck next time.";
+            }
+            document.getElementById("status").innerText = endMsg || "Match finished.";
+            disableEntireBoard();
+        } else {
+            document.getElementById("status").innerText = "Your Turn!";
+        }
+    }
+
+    /**
+     * Helper to manipulate local arrays along with individual structural UI nodes
+     */
+    function markCell(id, marker) {
+        virtualBoard[id - 1] = marker; // Keep state tracking synchronized array structure
+        
+        const cellElement = document.getElementById(`cell-${id}`);
+        if (cellElement) {
+            cellElement.innerText = marker;
+            cellElement.classList.add("taken");
+            cellElement.classList.add(marker === userMarker ? "user-marker" : "bot-marker");
+        }
+    }
+
+    /**
+     * Prevents interactions upon final terminal loop conditions
+     */
+    function disableEntireBoard() {
+        gameActive = false; // Lock game state to inactive
+        document.querySelectorAll(".cell").forEach(cell => {
+            cell.classList.add("taken");
+            // Optional visual cue: make unclickable items semi-transparent
+            cell.style.pointerEvents = "none";
+        });
+    }
+</script>
+</body>
+</html>
