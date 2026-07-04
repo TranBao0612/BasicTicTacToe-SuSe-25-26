@@ -22,12 +22,14 @@ public class Client {
 
             while (!end_program) {
                 String serverMessage = tcpIO.nextLine();
-                ioService.println(serverMessage);
                 if (serverMessage.startsWith(Message.END_FLAG)) {
                     end_program = true;
                 } else if (serverMessage.startsWith(Message.PROMPT_FLAG)) {
+                    tcpIO.println(serverMessage.substring(Message.PROMPT_FLAG.length()));
                     String input = ioService.nextLine();
                     tcpIO.println(input);
+                } else {
+                    ioService.println(serverMessage);
                 }
             }
 

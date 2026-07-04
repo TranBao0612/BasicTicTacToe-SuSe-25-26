@@ -23,8 +23,11 @@ public class Bot extends Player {
      */
     @Override
     public int makeDecision(SquareBoard board) {
-        int decision = board.getEmptyCells().get(0);
-        return decision;
+        return getBotDecision(board);
+    }
+
+    public static int getBotDecision(SquareBoard board) {
+        return board.getEmptyCells().get(0);
     }
 }
 

@@ -8,6 +8,7 @@ import org.myproject.common.io.IOService;
 public class User extends Player {
     public User(int player_id, IOService ioService) {
         super(player_id, ioService);
+        this.promptMessage = Message.PROMPT_FLAG + this.promptMessage; // Add prompt flag to the message
     }
 
     /**
@@ -42,6 +43,6 @@ public class User extends Player {
             ioService.println(promptMessage);
         }
     }
-    
+
 }
 
