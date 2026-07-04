@@ -37,6 +37,9 @@ public abstract class Player {
      * @param board the current state of the board.
      * @return the move made by the player.
      */
-    public abstract int makeDecision(SquareBoard board);
+    public abstract int makeDecision(SquareBoard board, boolean withTag);
+    public int makeDecision(SquareBoard board) {
+        return makeDecision(board, false);
+    }
 }
 

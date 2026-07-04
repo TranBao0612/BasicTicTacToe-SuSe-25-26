@@ -128,12 +128,22 @@
 
           <executions>
               <execution>
+                  <id>App</id>
+                  <goals>
+                      <goal>java</goal>
+                  </goals>
+                  <configuration>
+                      <mainClass>org.myproject.ConsoleApp</mainClass>
+                  </configuration>
+              </execution>
+              
+              <execution>
                   <id>Server</id>
                   <goals>
                       <goal>java</goal>
                   </goals>
                   <configuration>
-                      <mainClass>org.myproject.sc_singlethread_singleuser.Server</mainClass>
+                      <mainClass>org.myproject.sc_stateless_tcp.Server</mainClass>
                   </configuration>
               </execution>
 
@@ -143,7 +153,7 @@
                       <goal>java</goal>
                   </goals>
                   <configuration>
-                      <mainClass>org.myproject.sc_singlethread_singleuser.Client</mainClass>
+                      <mainClass>org.myproject.sc_stateless_tcp.Client</mainClass>
                   </configuration>
               </execution>
           </executions>

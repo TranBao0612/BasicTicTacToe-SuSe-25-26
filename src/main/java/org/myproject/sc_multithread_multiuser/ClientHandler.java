@@ -1,4 +1,4 @@
-package org.myproject.sc_singlethread_singleuser;
+package org.myproject.sc_multithread_multiuser;
 
 import org.myproject.common.game.Tictactoe;
 import org.myproject.common.io.IOService;

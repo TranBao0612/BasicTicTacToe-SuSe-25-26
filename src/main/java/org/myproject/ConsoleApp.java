@@ -4,7 +4,8 @@ import org.myproject.common.constant.Message;
 import org.myproject.common.game.Tictactoe;
 import org.myproject.common.io.*;
 
-
+// mvn exec:java@App "-Dexec.args=1"
+// mvn exec:java@App "-Dexec.args=2"
 public class ConsoleApp {
     public static IOService ioService = new ConsoleIO();
 

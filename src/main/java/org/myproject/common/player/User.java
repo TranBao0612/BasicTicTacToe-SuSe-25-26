@@ -16,7 +16,7 @@ public class User extends Player {
      * @return the decision made by the user, or -1 if the user wants to quit.
      */
     @Override
-    public int makeDecision(SquareBoard board) {
+    public int makeDecision(SquareBoard board, boolean withTag) {
         while (true) {
             String input = ioService.nextLine().trim();
             if (input.equalsIgnoreCase("q")) {
@@ -39,7 +39,11 @@ public class User extends Player {
                 ioService.println("An unexpected error occurred: " + e.getMessage());
             }
             // Prompt the user again for input after handling invalid input or exceptions.
-            ioService.println(promptMessage);
+            if (withTag) {
+                ioService.println(Message.PROMPT_FLAG + promptMessage);
+            } else {
+                ioService.println(promptMessage);
+            }
         }
     }
     

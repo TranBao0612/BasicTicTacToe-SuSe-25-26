@@ -20,6 +20,7 @@ public class Tictactoe {
     private SquareBoard board;
     private boolean end_game = false;
     private IOService ioService;
+    private boolean withFlag;
 
 
 
@@ -28,10 +29,15 @@ public class Tictactoe {
      * @param turn_of_human_user turn of the human user (1 or 2)
      * @param ioService the IO Service for input/output
      */
-    public Tictactoe(int turn_of_human_user, IOService ioService) {
+    public Tictactoe(int turn_of_human_user, IOService ioService, boolean withFlag) {
         this.board = new SquareBoard1D(3);
         this.ioService = ioService;
+        this.withFlag = withFlag;
         initializePlayers(turn_of_human_user);
+    }
+
+    public Tictactoe(int turn_of_human_user, IOService ioService) {
+        this(turn_of_human_user, ioService, false);
     }
 
 
@@ -55,13 +61,20 @@ public class Tictactoe {
      *      and switch turn if the game has not ended.
      */
     public void runOneTurn() {
-        ioService.println(Message.getPlayersTurnMessage(players[current_turn].getPlayerId(), players[current_turn] instanceof User));
-        int decision = players[current_turn].makeDecision(board);
+        if (withFlag) {
+            ioService.println(Message.getPlayersTurnMessage(players[current_turn].getPlayerId(), players[current_turn] instanceof User));
+        } else {
+            ioService.println(Message.getPlayersTurnMessage(players[current_turn].getPlayerId()));
+        }
+        int decision = players[current_turn].makeDecision(board, withFlag);
         if (players[current_turn] instanceof Bot) {
             ioService.println(String.valueOf(decision));
         }
         // If the user quit the game, end the game and return.
         if (decision == -1) {
+            if (withFlag) {
+                ioService.println(Message.END_FLAG);
+            }
             end_game = true;
             return;
         }
@@ -72,9 +85,15 @@ public class Tictactoe {
         int winner_id = TictactoeWinner.getWinner(board);
         if (winner_id != -1) {
             ioService.println(Message.getWinnerMessage(winner_id));
+            if (withFlag) {
+                ioService.println(Message.END_FLAG);
+            }
             end_game = true;
         } else if (board.isFull()) {
             ioService.println(Message.DRAW_MESSAGE);
+            if (withFlag) {
+                ioService.println(Message.END_FLAG);
+            }
             end_game = true;
         } else {
             switchTurn();

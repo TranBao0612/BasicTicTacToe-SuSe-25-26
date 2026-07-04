@@ -1,4 +1,4 @@
-package org.myproject.sc_singlethread_singleuser;
+package org.myproject.sc_stateless_tcp;
 
 import org.myproject.common.constant.Constant;
 import org.myproject.common.io.*;
@@ -19,9 +19,9 @@ public class Server {
             while (true) {
                 // Wait for a client to connect
                 Socket clientSocket = serverSocket.accept();
-                ioService.println("Client connected: " + clientSocket.getInetAddress());
+                ioService.println("Request incoming: " + clientSocket.getInetAddress() + ":" + clientSocket.getPort());
 
-                new ClientHandler(clientSocket, ioService).run();;
+                new ClientHandler(clientSocket, ioService).run();
             }
 
         } catch (Exception e) {

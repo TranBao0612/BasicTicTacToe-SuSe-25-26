@@ -1,4 +1,4 @@
-package org.myproject.sc_singlethread_singleuser;
+package org.myproject.sc_multithread_multiuser;
 
 import org.myproject.common.constant.Constant;
 import org.myproject.common.io.*;
@@ -21,7 +21,7 @@ public class Server {
                 Socket clientSocket = serverSocket.accept();
                 ioService.println("Client connected: " + clientSocket.getInetAddress());
 
-                new ClientHandler(clientSocket, ioService).run();;
+                new Thread(new ClientHandler(clientSocket, ioService)).start();
             }
 
         } catch (Exception e) {

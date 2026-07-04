@@ -181,4 +181,39 @@ public abstract class SquareBoard {
         }
         return sb.toString();
     }
+    
+    /**
+     * Serialize the board to deserilaizable string format to be sent over the network or saved to a file.
+     * @return cell values of the board in a comma-separated string format, in row-major order.
+     */
+    public String serialize() {
+        return String.join(",", getAllCells().stream().map(String::valueOf).toArray(String[]::new));
+    }
+
+    /**
+     * Deserialize a serialized board string back into a SquareBoard object.
+     * @param serializedBoard the serialized board string to deserialize.
+     * @return a new SquareBoard object with the same cell values as the serialized board. Underlying implementation is SquareBoard1D.
+     * @throws IllegalArgumentException if the serialized board string is invalid (e.g., wrong format or size).
+     */
+    public static SquareBoard deserialize(String serializedBoard) {
+        String[] cellValues = serializedBoard.split(",");
+        // Check if the number of cell values is a perfect square to determine the size of the board
+        int size = (int) Math.sqrt(cellValues.length);
+        if (size * size != cellValues.length) {
+            throw new IllegalArgumentException("Invalid serialized board size: " + serializedBoard);
+        }
+        // Create a new SquareBoard instance based on the size and fill it with the deserialized values
+        SquareBoard board = new SquareBoard1D(size);
+        List<Integer> values = new ArrayList<>();
+        try {
+            for (String cellValue : cellValues) {
+                values.add(Integer.parseInt(cellValue.trim()));
+            }
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid serialized board format: " + serializedBoard, e);
+        }
+        board.setAllCells(values);
+        return board;
+    }
 }

@@ -1,4 +1,4 @@
-package org.myproject.sc_singlethread_singleuser;
+package org.myproject.sc_multithread_multiuser;
 
 import org.myproject.common.constant.Constant;
 import org.myproject.common.constant.Message;

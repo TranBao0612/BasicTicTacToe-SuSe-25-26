@@ -22,7 +22,12 @@ public class Bot extends Player {
      * @return the decision made by the bot, which is the index of the first empty cell on the board.
      */
     @Override
-    public int makeDecision(SquareBoard board) {
+    public int makeDecision(SquareBoard board, boolean withTag) {
+        return getBotDecision(board);
+    }
+
+
+    public static int getBotDecision(SquareBoard board) {
         int decision = board.getEmptyCells().get(0);
         return decision;
     }
