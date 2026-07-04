@@ -8,59 +8,58 @@ import org.myproject.common.io.IOService;
 import org.myproject.common.game.TictactoeWinner;
 
 import com.google.gson.*;
-import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 
-public class ClientHandler implements HttpHandler {
+@WebServlet(urlPatterns = {"/start", "/move"})
+public class ServletHandler extends HttpServlet {
     private final int BOARD_SIZE = 4; // Assuming a NxN board for Tic Tac Toe
-    private final IOService ioService;
     private final Gson gson = new Gson();
 
-    public ClientHandler(IOService ioService) {
-        this.ioService = ioService;
+    public ServletHandler() {}
+
+
+
+
+    /**
+     * Handle CORS preflight OPTIONS requests globally for Tomcat
+     */
+    @Override
+    protected void doOptions(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        setCorsHeaders(response);
+        response.setStatus(HttpServletResponse.SC_NO_CONTENT);
     }
 
+    /**
+     * Handle POST requests for the /start and /move endpoints
+     */
     @Override
-    public void handle(HttpExchange exchange) throws IOException {
-        // CORS and JSON headers
-        exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
-        exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type");
-        exchange.getResponseHeaders().add("Content-Type", "application/json; charset=UTF-8");
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        setCorsHeaders(response);
+        response.setContentType("application/json; charset=UTF-8");
 
-        // Handle preflight OPTIONS request if modern web clients call it
-        if ("OPTIONS".equalsIgnoreCase(exchange.getRequestMethod())) {
-            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "POST, OPTIONS");
-            exchange.sendResponseHeaders(204, -1);
-            return;
-        }
-
-        // Only allow POST requests for game actions
-        if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
-            sendJsonResponse(exchange, 405, createErrorJson("Method Not Allowed. Use POST."));
-            return;
-        }
-
-        // Determine the endpoint being called and handle accordingly
-        String path = exchange.getRequestURI().getPath();
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8))) {
+        String path = request.getRequestURI().substring(request.getContextPath().length());
+        
+        try (BufferedReader reader = request.getReader()) {
             String requestBody = reader.lines().collect(Collectors.joining("\n"));
 
             if ("/start".equals(path)) {
-                handleStart(exchange, requestBody);
+                handleStart(response, requestBody);
             } else if ("/move".equals(path)) {
-                handleMove(exchange, requestBody);
+                handleMove(response, requestBody);
             } else {
-                sendJsonResponse(exchange, 404, createErrorJson("Not Found"));
+                sendJsonResponse(response, HttpServletResponse.SC_NOT_FOUND, createErrorJson("Not Found"));
             }
         } catch (JsonSyntaxException e) {
-            sendJsonResponse(exchange, 400, createErrorJson("Malformed JSON payload."));
+            sendJsonResponse(response, HttpServletResponse.SC_BAD_REQUEST, createErrorJson("Malformed JSON payload."));
         } catch (Exception e) {
-            ioService.println("Error handling request: " + e.getMessage());
-            sendJsonResponse(exchange, 500, createErrorJson("Internal Server Error: " + e.getMessage()));
+            sendJsonResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, createErrorJson("Internal Server Error: " + e.getMessage()));
         }
     }
 
@@ -77,18 +76,18 @@ public class ClientHandler implements HttpHandler {
     /**
      * Handle the /start endpoint, which initializes the game based on the player's turn. <br>
      * The method will send the welcome message, initial board, or bot's first move if the bot goes first, and new board state.
-     * @param exchange the HttpExchange object representing the incoming request and response
+     * @param response the HttpServletResponse object to send the response through
      * @param body the raw JSON string from the request body containing the player's turn
      * @throws IOException if an I/O error occurs while sending the response
      */
-    private void handleStart(HttpExchange exchange, String body) throws IOException {
+    private void handleStart(HttpServletResponse response, String body) throws IOException {
         // Expected Request JSON: { "turn": 1 } or { "turn": 2 }
         StartRequest request = gson.fromJson(body, StartRequest.class);
         if (request == null || request.turn == null) {
-            sendJsonResponse(exchange, 400, createErrorJson("Invalid request format."));
+            sendJsonResponse(response, HttpServletResponse.SC_BAD_REQUEST, createErrorJson("Invalid request format."));
             return;
         } else if (request.turn != 1 && request.turn != 2) {
-            sendJsonResponse(exchange, 400, createErrorJson("Invalid turn value. Must be 1 (go first) or 2 (go second)."));
+            sendJsonResponse(response, HttpServletResponse.SC_BAD_REQUEST, createErrorJson("Invalid turn value. Must be 1 (go first) or 2 (go second)."));
             return;
         }
         
@@ -97,34 +96,34 @@ public class ClientHandler implements HttpHandler {
         SquareBoard board = new SquareBoard1D(BOARD_SIZE);
         
         // Build the JSON response with welcome message and initial board state
-        StartResponse response = new StartResponse();
-        response.welcome_message = Message.WELCOME_MESSAGE;
-        response.init_board_msg = board.serialize();
+        StartResponse startResponse = new StartResponse();
+        startResponse.welcome_message = Message.WELCOME_MESSAGE;
+        startResponse.init_board_msg = board.serialize();
 
         // If user wants to go second, Bot makes the first move
         if (turn == 2) {
             int botMove = Bot.getBotDecision(board);
             board.setCellValue(botMove, 1);
-            response.bot_move = botMove;
-            response.new_board_msg = board.serialize();
+            startResponse.bot_move = botMove;
+            startResponse.new_board_msg = board.serialize();
         }
 
-        sendJsonResponse(exchange, 200, gson.toJson(response));
+        sendJsonResponse(response, HttpServletResponse.SC_OK, gson.toJson(startResponse));
     }
 
 
 
     /**
      * Handle the /move endpoint, which processes the player's move, updates the board, checks for game end conditions, and generates the bot's response.
-     * @param exchange the HttpExchange object representing the incoming request and response
+     * @param response the HttpServletResponse object to send the response through  
      * @param body the raw JSON string from the request body containing the player's move and current board state
      * @throws IOException if an I/O error occurs while sending the response
      */
-    private void handleMove(HttpExchange exchange, String body) throws IOException {
+    private void handleMove(HttpServletResponse response, String body) throws IOException {
         MoveRequest request = gson.fromJson(body, MoveRequest.class);
         // Validate the request format
         if (request == null || request.turn == null || request.board_msg == null || request.move == null) {
-            sendJsonResponse(exchange, 400, createErrorJson("Invalid request format."));
+            sendJsonResponse(response, HttpServletResponse.SC_BAD_REQUEST, createErrorJson("Invalid request format."));
             return;
         }
         // Extract the board state, player's move, and turn from the request
@@ -157,8 +156,9 @@ public class ClientHandler implements HttpHandler {
             }
         }
         
-        sendJsonResponse(exchange, 200, gson.toJson(jsonResponse));
+        sendJsonResponse(response, HttpServletResponse.SC_OK, gson.toJson(jsonResponse));
     }
+
 
 
 
@@ -171,17 +171,27 @@ public class ClientHandler implements HttpHandler {
 
 
     /**
+     * Set CORS headers to allow cross-origin requests.
+     * @param response the HttpServletResponse object to set headers on
+     */
+    private void setCorsHeaders(HttpServletResponse response) {
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        response.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    }
+
+    /**
      * Utility method to send JSON response with appropriate headers and status code.
-     * @param exchange the HttpExchange object to send the response through
+     * @param response the HttpServletResponse object to send the response through
      * @param statusCode the HTTP status code to send
      * @param responseJson the JSON string to send in the response body
      * @throws IOException if an I/O error occurs while sending the response
      */
-    private void sendJsonResponse(HttpExchange exchange, int statusCode, String responseJson) throws IOException {
-        byte[] bytes = responseJson.getBytes(StandardCharsets.UTF_8);
-        exchange.sendResponseHeaders(statusCode, bytes.length);
-        try (OutputStream os = exchange.getResponseBody()) {
-            os.write(bytes);
+    public void sendJsonResponse(HttpServletResponse response, int statusCode, String responseJson) throws IOException {
+        response.setStatus(statusCode);
+        try (PrintWriter writer = response.getWriter()) {
+            writer.print(responseJson);
+            writer.flush();
         }
     }
 
@@ -190,7 +200,7 @@ public class ClientHandler implements HttpHandler {
      * @param errorMessage the error message to include in the JSON
      * @return the JSON string representing the error
      */
-    private String createErrorJson(String errorMessage) {
+    public String createErrorJson(String errorMessage) {
         JsonObject errorObj = new JsonObject();
         errorObj.addProperty("error", errorMessage);
         return gson.toJson(errorObj);
