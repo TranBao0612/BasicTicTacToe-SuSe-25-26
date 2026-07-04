@@ -68,7 +68,7 @@ public class Tictactoe {
         }
         int decision = players[current_turn].makeDecision(board, withFlag);
         if (players[current_turn] instanceof Bot) {
-            ioService.println(String.valueOf(decision));
+            ioService.println(decision);
         }
         // If the user quit the game, end the game and return.
         if (decision == -1) {

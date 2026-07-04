@@ -72,7 +72,7 @@ public class ClientHandler implements Runnable {
         int playerId = Integer.parseInt(payload);
         if (playerId != 1) {
             int botDecision = Bot.getBotDecision(board);
-            tcpIO.println(String.valueOf(botDecision));
+            tcpIO.println(botDecision);
             board.setCellValue(botDecision, 3 - playerId);
             tcpIO.println(board.toString());
             tcpIO.println(Message.getPlayersTurnMessage(2));
@@ -100,7 +100,6 @@ public class ClientHandler implements Runnable {
             board = SquareBoard.deserialize(parts[0]);
             move = Integer.parseInt(parts[1]);
             playerId = Integer.parseInt(parts[2]);
-            ioService.println("Received move request: board=" + parts[0] + ", move=" + move + ", playerId=" + playerId);
         } catch (Exception e) {
             throw new Exception("Invalid payload format: " + payload + ". Expected format: <board>; <move>; <playerId>");
         }
@@ -116,7 +115,7 @@ public class ClientHandler implements Runnable {
             // Bot's turn
         tcpIO.println(Message.getPlayersTurnMessage(3 - playerId));
         int botDecision = Bot.getBotDecision(board);
-        tcpIO.println(String.valueOf(botDecision));
+        tcpIO.println(botDecision);
         board.setCellValue(botDecision, 3 - playerId);
         tcpIO.println(board.toString());
         if (isEndGame(board)) {

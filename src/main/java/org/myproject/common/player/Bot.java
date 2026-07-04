@@ -17,7 +17,6 @@ public class Bot extends Player {
 
     /**
      * Bot (computer player) makes a decision by selecting the first available empty cell on the board.
-     * Prints the decision to the IOService if it is not null.
      * @param board the current state of the board.
      * @return the decision made by the bot, which is the index of the first empty cell on the board.
      */
@@ -26,7 +25,11 @@ public class Bot extends Player {
         return getBotDecision(board);
     }
 
-
+    /**
+     * Bot (computer player) makes a decision by selecting the first available empty cell on the board.
+     * @param board the current state of the board.
+     * @return the decision made by the bot, which is the index of the first empty cell on the board.
+     */
     public static int getBotDecision(SquareBoard board) {
         int decision = board.getEmptyCells().get(0);
         return decision;

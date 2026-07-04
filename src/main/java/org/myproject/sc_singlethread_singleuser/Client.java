@@ -18,7 +18,7 @@ public class Client {
             boolean end_program = false;
 
             turn_of_user = askForArgs();
-            tcpIO.println(String.valueOf(turn_of_user));
+            tcpIO.println(turn_of_user);
 
             while (!end_program) {
                 String serverMessage = tcpIO.nextLine();

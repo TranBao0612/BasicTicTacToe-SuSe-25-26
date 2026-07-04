@@ -13,10 +13,34 @@ public class User extends Player {
     /**
      * User makes a decision by reading input from the IOService.
      * @param board the current state of the board.
+     * @param withTag whether to include a prompt tag in the message
      * @return the decision made by the user, or -1 if the user wants to quit.
      */
     @Override
     public int makeDecision(SquareBoard board, boolean withTag) {
+        return getUserDecision(ioService, board, withTag, promptMessage);
+    }
+
+    /**
+     * User makes a decision by reading input from the IOService.
+     * @param ioService the IOService for input/output
+     * @param board the current state of the board.
+     * @param promptMessage the message to prompt the user for input
+     * @return the decision made by the user, or -1 if the user wants to quit.
+     */
+    public static int getUserDecision(IOService ioService, SquareBoard board, String promptMessage) {
+        return getUserDecision(ioService, board, false, promptMessage);
+    }
+
+    /**
+     * User makes a decision by reading input from the IOService.
+     * @param ioService the IOService for input/output
+     * @param board the current state of the board.
+     * @param withTag whether to include a prompt tag in the message
+     * @param promptMessage the message to prompt the user for input
+     * @return the decision made by the user, or -1 if the user wants to quit.
+     */
+    public static int getUserDecision(IOService ioService, SquareBoard board, boolean withTag, String promptMessage) {
         while (true) {
             String input = ioService.nextLine().trim();
             if (input.equalsIgnoreCase("q")) {

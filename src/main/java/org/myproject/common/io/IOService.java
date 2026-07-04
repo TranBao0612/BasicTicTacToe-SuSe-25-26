@@ -7,4 +7,7 @@ public interface IOService {
     public String nextLine();
     public void print(String message);
     public void println(String message);
+    public default void println(int message) {
+        println(String.valueOf(message));
+    };
 }
