@@ -154,7 +154,7 @@
     function handleStartResponse(data) {
         gameActive = true; // Enable game interactions
         // Retrieve and lock board size structure safely into state memory
-        boardSize = data.board_size || 3; 
+        boardSize = Math.sqrt(data.init_board_msg.split(',').length) || 3; 
         
         // Initialize independent tracking matrix mapping size boundaries
         const totalCells = boardSize * boardSize;

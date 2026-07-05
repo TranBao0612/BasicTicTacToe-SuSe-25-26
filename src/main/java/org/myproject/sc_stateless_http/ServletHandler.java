@@ -7,18 +7,18 @@ import org.myproject.common.player.Bot;
 import org.myproject.common.game.TictactoeWinner;
 
 import com.google.gson.*;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
 
 import java.io.*;
 import java.util.stream.Collectors;
 
 @WebServlet(urlPatterns = {"/start", "/move"})
 public class ServletHandler extends HttpServlet {
-    private final int BOARD_SIZE = 4; // Assuming a NxN board for Tic Tac Toe
+    private final int BOARD_SIZE = 3; // Assuming a NxN board for Tic Tac Toe
     private final Gson gson = new Gson();
 
     public ServletHandler() {}
@@ -137,22 +137,16 @@ public class ServletHandler extends HttpServlet {
         board.setCellValue(playerMove, playerTurn);
         jsonResponse.user_move_board_msg = board.serialize();
         jsonResponse.winner_id = TictactoeWinner.getWinner(board);
-        jsonResponse.end_message = getEndGameMsg(board);
-        if (jsonResponse.end_message != null) {
-            jsonResponse.end_status = true;
-        }
+        jsonResponse.end_status = getEndGameStatus(board);
         // 2. If game not end, Bot's Turn Logic 
-        else {
+        if (!jsonResponse.end_status) {
             int botTurn = 3 - playerTurn;
             int botMove = Bot.getBotDecision(board);
             board.setCellValue(botMove, botTurn);
             jsonResponse.bot_move = botMove;
             jsonResponse.bot_move_board_msg = board.serialize();
             jsonResponse.winner_id = TictactoeWinner.getWinner(board);
-            jsonResponse.end_message = getEndGameMsg(board);
-            if (jsonResponse.end_message != null) {
-                jsonResponse.end_status = true;
-            }
+            jsonResponse.end_status = getEndGameStatus(board);
         }
         
         sendJsonResponse(response, HttpServletResponse.SC_OK, gson.toJson(jsonResponse));
@@ -208,15 +202,15 @@ public class ServletHandler extends HttpServlet {
     /**
      * Check if the game has ended by checking for a winner or a draw and return the appropriate message.
      * @param board the current state of the board
-     * @return the message indicating the winner or a draw, or null if the game has not ended
+     * @return true if the game has ended (either a win or a draw), false otherwise
      */
-    private String getEndGameMsg(SquareBoard board) {
+    private boolean getEndGameStatus(SquareBoard board) {
         int winnerId = TictactoeWinner.getWinner(board);
         if (winnerId != -1) {
-            return Message.getWinnerMessage(winnerId);
+            return true;
         } else if (board.isFull()) {
-            return Message.DRAW_MESSAGE;
+            return true;
         }
-        return null;
+        return false;
     }
 }

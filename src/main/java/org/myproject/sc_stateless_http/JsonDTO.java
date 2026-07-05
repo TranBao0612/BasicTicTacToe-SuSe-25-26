@@ -18,7 +18,6 @@ public class JsonDTO {
     }
     public static class MoveResponse {
         public Integer winner_id = null;
-        public String end_message;
         public Boolean end_status = false;
         public String user_move_board_msg;
         public Integer bot_move = null;

@@ -33,12 +33,6 @@
   <dependencies>
   <!-- Jakarta EE APIs -->
     <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>javax.servlet-api</artifactId>
-        <version>3.0.1</version>
-        <scope>provided</scope>
-    </dependency>
-    <dependency>
         <groupId>jakarta.servlet</groupId>
         <artifactId>jakarta.servlet-api</artifactId>
         <version>6.0.0</version>
@@ -78,10 +72,6 @@
           <configuration>
             <failOnMissingWebXml>false</failOnMissingWebXml> 
           </configuration>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-war-plugin</artifactId>
         </plugin>
         <plugin>
             <artifactId>maven-assembly-plugin</artifactId>
@@ -135,30 +125,6 @@
                   </manifest>
               </archive>
           </configuration>
-        </plugin>
-        <plugin>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <version>3.6.0</version>
-            <configuration>
-                <descriptorRefs>
-                    <descriptorRef>jar-with-dependencies</descriptorRef>
-                </descriptorRefs>
-                <archive>
-                    <manifest>
-                        <mainClass>org.myproject.App</mainClass>
-                    </manifest>
-                </archive>
-                <includeTestClasses>true</includeTestClasses>
-            </configuration>
-            <executions>
-                <execution>
-                    <id>make-jar-with-tests</id>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>single</goal>
-                    </goals>
-                </execution>
-            </executions>
         </plugin>
         <plugin>
           <artifactId>maven-install-plugin</artifactId>

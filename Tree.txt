@@ -1,0 +1,40 @@
+org
+└───myproject
+	│   
+	├───common
+	│   ├───board
+	│   │       SquareBoard.java
+	│   │       SquareBoard1D.java
+	│   │       SquareBoard2D.java
+	│   │       
+	│   ├───constant
+	│   │       Constant.java
+	│   │       Message.java
+	│   │       
+	│   ├───game
+	│   │       Tictactoe.java
+	│   │       TictactoeWinner.java
+	│   │       
+	│   ├───io
+	│   │       ConsoleIO.java
+	│   │       IOService.java
+	│   │       TcpIO.java
+	│   │       
+	│   └───player
+	│           Bot.java
+	│           Player.java
+	│           User.java
+	│       
+	├───sc_stateless_http
+	│       Client.html
+	│       Client.java
+	│       ClientHandler.java
+	│       JsonDTO.java
+	│       Server.java
+	│       ServletHandler.java
+	│       TestCommandWithoutClient.md
+	│       
+	└───sc_stateless_tcp
+			Client.java
+			ClientHandler.java
+			Server.java

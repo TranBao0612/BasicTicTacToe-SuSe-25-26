@@ -13,7 +13,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 public class Client {
-    private String SERVER_URL = String.format("http://%s:%d", Constant.SERVER_HOST, Constant.SERVER_PORT);
+    private String SERVER_URL = String.format("http://%s:%d", Constant.SERVER_HOST, Constant.HTTP_PORT);
     private HttpClient httpClient = HttpClient.newHttpClient();
     private Gson gson = new Gson();
     private ConsoleIO consoleIO = new ConsoleIO();
@@ -128,7 +128,11 @@ public class Client {
         }
         // Print the end game message if game over, else update the current board based on the server's response
         if(game_over) {
-            consoleIO.println(moveRes.end_message);
+            if (moveRes.winner_id == -1) {
+                consoleIO.println(Message.DRAW_MESSAGE);
+            } else {
+                consoleIO.println(Message.getWinnerMessage(moveRes.winner_id));
+            }
         } else {
             currentBoard = botMoveBoard != null? botMoveBoard : userMoveBoard;
         }

@@ -139,22 +139,16 @@ public class ClientHandler implements HttpHandler {
         board.setCellValue(playerMove, playerTurn);
         jsonResponse.user_move_board_msg = board.serialize();
         jsonResponse.winner_id = TictactoeWinner.getWinner(board);
-        jsonResponse.end_message = getEndGameMsg(board);
-        if (jsonResponse.end_message != null) {
-            jsonResponse.end_status = true;
-        }
+        jsonResponse.end_status = getEndGameStatus(board);
         // 2. If game not end, Bot's Turn Logic 
-        else {
+        if (!jsonResponse.end_status) {
             int botTurn = 3 - playerTurn;
             int botMove = Bot.getBotDecision(board);
             board.setCellValue(botMove, botTurn);
             jsonResponse.bot_move = botMove;
             jsonResponse.bot_move_board_msg = board.serialize();
             jsonResponse.winner_id = TictactoeWinner.getWinner(board);
-            jsonResponse.end_message = getEndGameMsg(board);
-            if (jsonResponse.end_message != null) {
-                jsonResponse.end_status = true;
-            }
+            jsonResponse.end_status = getEndGameStatus(board);
         }
         
         sendJsonResponse(exchange, 200, gson.toJson(jsonResponse));
@@ -199,15 +193,15 @@ public class ClientHandler implements HttpHandler {
     /**
      * Check if the game has ended by checking for a winner or a draw and return the appropriate message.
      * @param board the current state of the board
-     * @return the message indicating the winner or a draw, or null if the game has not ended
+     * @return true if the game has ended (either a win or a draw), false otherwise
      */
-    private String getEndGameMsg(SquareBoard board) {
+    private boolean getEndGameStatus(SquareBoard board) {
         int winnerId = TictactoeWinner.getWinner(board);
         if (winnerId != -1) {
-            return Message.getWinnerMessage(winnerId);
+            return true;
         } else if (board.isFull()) {
-            return Message.DRAW_MESSAGE;
+            return true;
         }
-        return null;
+        return false;
     }
 }
